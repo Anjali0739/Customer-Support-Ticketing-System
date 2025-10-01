@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Support Ticketing System</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f6f8; }
+        h1 { color: #333; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #007BFF; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        a { color: #007BFF; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>Customer Support Ticketing System</h1>
+    <p>This is a Django REST Framework project with JWT Authentication, Ticket CRUD operations, and user management.</p>
+
+    <h2>API Endpoints</h2>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Method</th>
+            <th>URL</th>
+        </tr>
+        {% for ep in endpoints %}
+        <tr>
+            <td>{{ ep.name }}</td>
+            <td>{{ ep.method }}</td>
+            <td><a href="{{ ep.url }}">{{ ep.url }}</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Next Steps</h2>
+    <ul>
+        <li>Use Postman to authenticate via JWT and test ticket endpoints.</li>
+        <li>Create, list, retrieve, update, and delete tickets.</li>
+        <li>Explore admin panel for user & ticket management: <a href="/admin/">Admin</a></li>
+    </ul>
+</body>
+</html>
