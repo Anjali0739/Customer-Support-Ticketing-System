@@ -1,5 +1,5 @@
 """
-URL configuration for ticketing_system project.
+URL configuration for center_of_project project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.2/topics/http/urls/
@@ -16,30 +16,8 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, include
-from django.http import JsonResponse
-
-
-
-
-def home(request):
-    return JsonResponse({
-        "message": "Welcome to the Customer Support Ticketing System API",
-        "endpoints": {
-            "admin": "/admin/",
-            "auth": "/api/auth/",
-            "tickets": "/api/tickets/"
-        }
-    })
-
-
-
-
-
+from django.urls import path
 
 urlpatterns = [
-    path("", include("landing.urls")),
     path("admin/", admin.site.urls),
-    path("api/auth/", include("users.urls")),
-    path("api/tickets/", include("tickets.urls")),
 ]
