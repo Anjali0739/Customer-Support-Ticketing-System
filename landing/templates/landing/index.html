@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Support Ticketing System</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f6f8; }
+        h1, h2 { color: #333; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #007BFF; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        input, select, textarea, button { padding: 8px; margin: 6px 0; width: 300px; }
+        .response { background: #fff; border: 1px solid #ddd; padding: 12px; margin-top: 12px; white-space: pre-wrap; }
+        a { color: #007BFF; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .ticket-form { margin-bottom: 20px; }
+        .ticket-list { margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <h1>Customer Support Ticketing System</h1>
+    <p>This is a Django REST Framework project with JWT Authentication, Ticket CRUD operations, and user management.</p>
+
+    <h2>Enter your JWT Token</h2>
+    <input type="text" id="token" placeholder="Paste access token here">
+    <p>All requests will use this token for Authorization.</p>
+
+    <h2>Create Ticket</h2>
+    <div class="ticket-form">
+        <input type="text" id="ticketTitle" placeholder="Ticket Title"><br>
+        <textarea id="ticketDescription" placeholder="Ticket Description" rows="4" cols="50"></textarea><br>
+        <select id="ticketPriority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+        </select><br>
+        <button onclick="createTicket()">Create Ticket</button>
+    </div>
+
+    <h2>API Endpoints</h2>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Method</th>
+            <th>Action</th>
+        </tr>
+        {% for ep in endpoints %}
+        <tr>
+            <td>{{ ep.name }}</td>
+            <td>{{ ep.method }}</td>
+            <td>
+                <button onclick="callApi('{{ ep.url }}', '{{ ep.method }}')">Send Request</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Live Ticket List</h2>
+    <button onclick="fetchTickets()">Refresh Tickets</button>
+    <table id="ticketTable" class="ticket-list">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Created At</th>
+                <th>Created By</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Tickets will load dynamically -->
+        </tbody>
+    </table>
+
+    <h2>Response</h2>
+    <div id="response" class="response">API response will appear here...</div>
+
+    <script>
+        async function callApi(url, method) {
+            const token = document.getElementById('token').value;
+            const headers = {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            };
+
+            try {
+                const res = await fetch(url, { method, headers });
+                const data = await res.json();
+                document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+            } catch (err) {
+                document.getElementById('response').innerText = err;
+            }
+        }
+
+        async function createTicket() {
+            const token = document.getElementById('token').value;
+            const title = document.getElementById('ticketTitle').value;
+            const description = document.getElementById('ticketDescription').value;
+            const priority = document.getElementById('ticketPriority').value;
+
+            const body = JSON.stringify({ title, description, priority });
+
+            try {
+                const res = await fetch('/api/tickets/', {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body
+                });
+                const data = await res.json();
+                document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+                fetchTickets(); // auto-refresh after creating
+            } catch (err) {
+                document.getElementById('response').innerText = err;
+            }
+        }
+
+        async function fetchTickets() {
+            const token = document.getElementById('token').value;
+            const headers = {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            };
+
+            try {
+                const res = await fetch('/api/tickets/', { headers });
+                const data = await res.json();
+
+                const tbody = document.querySelector("#ticketTable tbody");
+                tbody.innerHTML = ""; // clear old rows
+
+                data.forEach(ticket => {
+                    const row = `<tr>
+                        <td>${ticket.id}</td>
+                        <td>${ticket.title}</td>
+                        <td>${ticket.description}</td>
+                        <td>${ticket.status}</td>
+                        <td>${ticket.priority || '-'}</td>
+                        <td>${new Date(ticket.created_at).toLocaleString()}</td>
+                        <td>${ticket.created_by}</td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
+
+                document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+            } catch (err) {
+                document.getElementById('response').innerText = err;
+            }
+        }
+    </script>
+</body>
+</html>
