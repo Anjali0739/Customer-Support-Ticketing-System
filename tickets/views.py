@@ -34,7 +34,45 @@ def create_view_ticket(request):
             "created_at":t.created_at
         } for t in ticket]
 
-        return JsonResponse({"tickets":data}, status=200)
+        return JsonResponse({"User":user.username,"tickets":data}, status=200)
+
+
+
+
+
+@api_view(["GET","PUT", "Delete"])
+@permission_classes([IsAuthenticated])
+def view_update_delete(request, id):
+    user = request.user
+
+    ticket=Ticket.objects.filter(id=id, user_id=user).first()
+
+    if ticket is None:
+        return JsonResponse({"error":"ticket not found"}, status=400)
+
+    if request.method=="GET":
+        return JsonResponse({
+            "id":ticket.id,
+            "title":ticket.title,
+            "description":ticket.description,
+            "created_at":ticket.created_at
+        }, status=200)
+    
+
+    elif request.method=="PUT":
+        data = json.loads(request.body)
+        
+        ticket.title = data.get('title', ticket.title)
+        ticket.description = data.get('description', ticket.description)
+        ticket.save()
+
+        return JsonResponse({"message":"ticket updated successfully!", "ticket_id":ticket.id}, status=200)
+    
+
+
+    elif request.method=="DELETE":
+        ticket.delete()
+        return JsonResponse({"message":"ticket deleted successfully!", "ticket_id":id}, status=200)
 
 
 
