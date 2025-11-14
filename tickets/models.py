@@ -9,9 +9,18 @@ class Ticket(models.Model):
         ("in_progress", "In Progress"),
         ("closed", "Closed"),
     ]
+
+    PRIORITY_CHOICES = [
+        ("low", "Low"),
+        ("medium", "Medium"),
+        ("high", "High"),
+    ]
+
+
     title = models.CharField(max_length=100)
     description = models.TextField()
     status = models.CharField(max_length=20,choices=STATUS_CHOICES,default="open")
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default="medium")
     created_at = models.DateTimeField(auto_now_add=True)
     last_updated_at = models.DateTimeField(auto_now=True)
     user_id = models.ForeignKey("user.User", on_delete=models.CASCADE, related_name="tickets")

@@ -17,12 +17,13 @@ def create_view_ticket(request):
         title = data.get('title')
         description = data.get('description')
         status=data.get("status", "open")
+        priority=data.get("priority", "medium")
         
         if not title or not description:
             return JsonResponse({"error":"both title and description are required"}, status=400)
         
-        ticket = Ticket.objects.create(title=title, description=description, status=status, user_id=user)
-        return JsonResponse({"message":"Ticket created successfully!", "Ticket_id":ticket.id, "status":status, "User":user.username}, status=201)
+        ticket = Ticket.objects.create(title=title, description=description, status=status, priority=priority, user_id=user)
+        return JsonResponse({"message":"Ticket created successfully!", "Ticket_id":ticket.id, "status":status,"priority":priority, "User":user.username}, status=201)
     
 
 
@@ -33,6 +34,7 @@ def create_view_ticket(request):
             "title":t.title,
             "description":t.description,
             "status": t.status,
+            "priority": t.priority,
             "created_at":t.created_at
         } for t in ticket]
 
@@ -58,6 +60,7 @@ def view_update_delete(request, id):
             "title":ticket.title,
             "description":ticket.description,
             "status": ticket.status,
+            "priority": ticket.priority,
             "created_at":ticket.created_at
         }, status=200)
     
@@ -68,9 +71,10 @@ def view_update_delete(request, id):
         ticket.title = data.get('title', ticket.title)
         ticket.description = data.get('description', ticket.description)
         ticket.status = data.get("status", ticket.status)
+        ticket.priority = data.get("priority", ticket.priority)
         ticket.save()
 
-        return JsonResponse({"message":"ticket updated successfully!", "ticket_id":ticket.id, "status":ticket.status}, status=200)
+        return JsonResponse({"message":"ticket updated successfully!", "ticket_id":ticket.id, "status":ticket.status, "priority":ticket.priority}, status=200)
     
 
 
