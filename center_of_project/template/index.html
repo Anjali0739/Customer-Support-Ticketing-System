@@ -1,9 +1,156 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Customer Support Ticketing System</title>
+<meta charset="UTF-8">
+<title>API Tester</title>
+<style>
+    body { font-family: sans-serif; margin: 0; background: #f5f5f5; }
+    .container { max-width: 900px; margin: 40px auto; background: white; padding: 20px; border-radius: 8px; }
+    label { font-weight: bold; display: block; margin-top: 20px; }
+    select, input, textarea { width: 100%; padding: 10px; margin-top: 5px; }
+    button { padding: 10px 20px; background: #007bff; color: white;
+             border: none; border-radius: 4px; margin-top: 20px; cursor: pointer; }
+    .response { background: #222; color: #0f0; padding: 20px; margin-top: 20px;
+                white-space: pre-wrap; border-radius: 6px; }
+</style>
 </head>
 <body>
-    <h1>Welcome to the Customer Support Ticketing System</h1>
+
+<div class="container">
+    <h2>API Testing Tool</h2>
+
+    <!-- Select API -->
+    <label>Select API</label>
+    <select id="apiSelect">
+        <option value="">-- Select API --</option>
+        <option value="register">Register User</option>
+        <option value="login">Login User</option>
+        <option value="create">Create Ticket</option>
+        <option value="list">List Tickets</option>
+        <option value="get">Get Ticket by ID</option>
+        <option value="update">Update Ticket</option>
+        <option value="delete">Delete Ticket</option>
+    </select>
+
+    <!-- URL -->
+    <label>URL</label>
+    <input id="urlInput" placeholder="http://127.0.0.1:8000/example">
+
+    <!-- Method -->
+    <label>Method</label>
+    <select id="methodInput">
+        <option>GET</option>
+        <option>POST</option>
+        <option>PUT</option>
+        <option>DELETE</option>
+    </select>
+
+    <!-- Headers -->
+    <label>Auth Token (Optional)</label>
+    <input id="tokenInput" placeholder="JWT Token here">
+
+    <!-- Body -->
+    <label>Body (JSON)</label>
+    <textarea id="bodyInput" rows="8"></textarea>
+
+    <button onclick="sendRequest()">Send Request</button>
+
+    <label>Response</label>
+    <div class="response" id="responseBox">Response will appear here...</div>
+</div>
+
+<script>
+const BASE = "http://127.0.0.1:8000/";
+
+document.getElementById("apiSelect").addEventListener("change", function () {
+    const api = this.value;
+
+    const url = document.getElementById("urlInput");
+    const method = document.getElementById("methodInput");
+    const body = document.getElementById("bodyInput");
+
+    if (api === "register") {
+        url.value = BASE + "user/register/";
+        method.value = "POST";
+        body.value = JSON.stringify({
+            username: "anjali",
+            email: "test@example.com",
+            password: "12345"
+        }, null, 2);
+    }
+    else if (api === "login") {
+        url.value = BASE + "user/";
+        method.value = "POST";
+        body.value = JSON.stringify({
+            username: "anjali",
+            password: "12345"
+        }, null, 2);
+    }
+    else if (api === "create") {
+        url.value = BASE + "tickets/";
+        method.value = "POST";
+        body.value = JSON.stringify({
+            title: "Sample Ticket",
+            description: "Issue description here",
+            priority: "medium"
+        }, null, 2);
+    }
+    else if (api === "list") {
+        url.value = BASE + "tickets/";
+        method.value = "GET";
+        body.value = "";
+    }
+    else if (api === "get") {
+        url.value = BASE + "tickets/1/";
+        method.value = "GET";
+        body.value = "";
+    }
+    else if (api === "update") {
+        url.value = BASE + "tickets/1/";
+        method.value = "PUT";
+        body.value = JSON.stringify({
+            title: "Updated Title",
+            description: "Updated Desc",
+            priority: "high"
+        }, null, 2);
+    }
+    else if (api === "delete") {
+        url.value = BASE + "tickets/1/";
+        method.value = "DELETE";
+        body.value = "";
+    }
+});
+
+async function sendRequest() {
+    const url = document.getElementById("urlInput").value;
+    const method = document.getElementById("methodInput").value;
+    const body = document.getElementById("bodyInput").value;
+    const token = document.getElementById("tokenInput").value;
+
+    let options = {
+        method: method,
+        headers: { "Content-Type": "application/json" }
+    };
+
+    if (token.trim() !== "") {
+        options.headers["Authorization"] = "Bearer " + token;
+    }
+
+    if (method !== "GET" && method !== "DELETE" && body.trim() !== "") {
+        options.body = body;
+    }
+
+    try {
+        const res = await fetch(url, options);
+        const text = await res.text();
+
+        document.getElementById("responseBox").textContent = text;
+    } 
+    catch (error) {
+        document.getElementById("responseBox").textContent = "Error: " + error;
+    }
+}
+</script>
+
 </body>
 </html>
