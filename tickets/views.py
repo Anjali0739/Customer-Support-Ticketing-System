@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 import json
 from django.http import JsonResponse
+from .serializer import TicketSerializer
 
 
 
@@ -29,16 +30,9 @@ def create_view_ticket(request):
 
     elif request.method=="GET":
         ticket = Ticket.objects.filter(user_id=user).order_by('-last_updated_at')
-        data = [{
-            "id":t.id,
-            "title":t.title,
-            "description":t.description,
-            "status": t.status,
-            "priority": t.priority,
-            "created_at":t.created_at
-        } for t in ticket]
+        serializedTicket = TicketSerializer(ticket, many=True).data
 
-        return JsonResponse({"User":user.username,"tickets":data}, status=200)
+        return JsonResponse({"User":user.username,"tickets":serializedTicket}, status=200)
 
 
 
@@ -55,14 +49,8 @@ def view_update_delete(request, id):
         return JsonResponse({"error":"ticket not found"}, status=400)
 
     if request.method=="GET":
-        return JsonResponse({
-            "id":ticket.id,
-            "title":ticket.title,
-            "description":ticket.description,
-            "status": ticket.status,
-            "priority": ticket.priority,
-            "created_at":ticket.created_at
-        }, status=200)
+        serializedTicket = TicketSerializer(ticket).data
+        return JsonResponse(serializedTicket, status=200)
     
 
     elif request.method=="PUT":
